@@ -1,0 +1,16 @@
+# For run add VM option: -Dlog4j2.configurationFile=log4j2.yml
+Configuration:
+  status: warn
+  name: YamlConfig
+  appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%d %6.6p [%-25.25t] %-25c{1} %msg%n"
+
+  Loggers:
+    Root:
+      level: debug
+      AppenderRef:
+        ref: Console
