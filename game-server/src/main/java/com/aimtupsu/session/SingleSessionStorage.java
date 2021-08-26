@@ -66,12 +66,15 @@ public class SingleSessionStorage implements SessionStorage {
     }
 
     /**
-     * @return множество из одного объекта WebSocket сессии.
+     * @return множество из одного объекта WebSocket сессии,
+     * если сессия есть, иначе пустое множество.
      */
     @Nonnull
     @Override
     public Set<WebSocketSession> getSessions() {
-        return Collections.singleton(this.session);
+        return this.session == null
+                ? Collections.emptySet()
+                : Collections.singleton(this.session);
     }
 
 }

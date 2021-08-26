@@ -49,6 +49,10 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(@Nonnull final WebSocketSession session,
                                      @Nonnull final TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
+        log.info("New message: \"{}\"", message.getPayload());
+        // Отправляем в ответ тоже самое что и получили.
+        session.sendMessage(message);
+        log.info("Message \"{}\" has been sent", message.getPayload());
     }
 
 }

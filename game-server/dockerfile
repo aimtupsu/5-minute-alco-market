@@ -1,0 +1,15 @@
+
+# используем в качестве базы один из лёгких образов с 11 Java на Linux amd64
+FROM openjdk:11.0.12-jre
+
+# внешний порт, по которому наше приложение будет доступно извне
+EXPOSE 8080
+
+# путь до jar файла нашего сервиса
+ARG JAR_FILE=target/game-server-1.0-SNAPSHOT.jar
+
+# добавляем джарник в образ под именем game-server.jar
+ADD ${JAR_FILE} game-server.jar
+
+# команда запуска нашего jar
+ENTRYPOINT ["java","-jar","/game-server.jar"]

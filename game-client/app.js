@@ -27,7 +27,7 @@ function onCloseWs(event) {
 }
 
 function onMsgWs(event) {
-    console.log("Message is received: " + event);
+    console.log("Message is received: " + event.data);
     document.getElementById("server-response-label").innerHTML = event.data;
 }
 
