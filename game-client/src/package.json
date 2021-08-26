@@ -1,0 +1,23 @@
+{
+  "name": "5-minute-alco-market",
+  "version": "1.0.0",
+  "description": "Test",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp"
+  },
+  "keywords": [
+    "test"
+  ],
+  "author": "Test",
+  "license": "ISC",
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-cssnano": "^2.1.3",
+    "gulp-html-beautify": "^1.0.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.2"
+  }
+}

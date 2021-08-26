@@ -27,3 +27,6 @@ hs_err_pid*
 
 # maven
 target/
+
+game-client/src/node_modules
+.vscode/
