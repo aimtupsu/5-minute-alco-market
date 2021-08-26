@@ -4,7 +4,8 @@
   "description": "Test",
   "main": "index.js",
   "scripts": {
-    "build": "gulp"
+    "build": "gulp",
+    "server-start": "node ./scripts/server.js"
   },
   "keywords": [
     "test"
