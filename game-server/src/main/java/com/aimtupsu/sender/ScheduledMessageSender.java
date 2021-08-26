@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 @Log4j2
 @Component
@@ -23,7 +24,13 @@ public final class ScheduledMessageSender implements MessageSender {
 
     private int i = 0;
 
-    @Scheduled(fixedDelay = 10000)
+    /**
+     * Каждые 10 секунд отправляет сообщение вида "Ответ от сервера. №%INDEX%".
+     * Отправление происходит клиентам сессий из хранилища  - sessionStorage.
+     *
+     * Выключено
+     */
+    //@Scheduled(fixedDelay = 10000)
     public void produceAndSendMessageTask() {
         log.info("Trying to send a message");
         if (this.sendMessage("Ответ от сервера. №" + i)) {
@@ -34,7 +41,7 @@ public final class ScheduledMessageSender implements MessageSender {
     @Override
     public boolean sendMessage(@Nonnull final String payload) {
         int counter = 0;
-        for (var session : sessionStorage.getSessions()) {
+        for (WebSocketSession session : sessionStorage.getSessions()) {
             if (session.isOpen()) {
                 log.debug("WebSocket session {} is open", session.getId());
                 try {
