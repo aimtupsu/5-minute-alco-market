@@ -28,5 +28,7 @@ hs_err_pid*
 # maven
 target/
 
-game-client/src/node_modules
+game-client/build/*
+game-client/node_modules
+game-client/package-lock.json
 .vscode/
