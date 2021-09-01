@@ -1,10 +1,12 @@
-import "./scripts/app";
+import "./scripts/webcoket/websocket";
 import "./assets/sass/styles.scss";
 
-const application = document.getElementById("application");
+import Game from "./scripts/game/game";
 
-const element = document.createElement("div");
+window.onload = () => {
+  const game = new Game();
 
-element.innerHTML = "hello world1-1-1";
+  game.test();
 
-application.appendChild(element);
+  console.log("game: ", game);
+};
