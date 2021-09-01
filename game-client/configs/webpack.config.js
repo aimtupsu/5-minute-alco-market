@@ -66,14 +66,14 @@ const config = {
         test: /\.(png|jpe?g|gif)$/i,
         loader: "file-loader",
         options: {
-          name: "images/[path][name].[ext]",
+          name: "[path][name].[ext]",
         },
       },
       {
         test: /\.(woff2?|ttf)$/i,
         loader: "file-loader",
         options: {
-          name: "fonts/[path][name].[ext]",
+          name: "[path][name].[ext]",
         },
       },
     ],
