@@ -3,6 +3,18 @@ const fse = require("fs-extra");
 const path = require("path");
 const version = require("../package.json").version;
 
+// Подготавливает директорию сборки фронта
+//  Создаёт директорию сборки ./build если её нет, иначе очищаем её.
+function prepareBuildDir() {
+  const buildDir = "../build/";
+  if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir);
+  } else {
+    clean(buildDir);
+  }
+}
+
+// Очищает заданную директорию - folder.
 function clean(folder, exception) {
   const folderPath = path.resolve(__dirname, folder);
 
@@ -33,6 +45,7 @@ function clean(folder, exception) {
   }
 }
 
+// Копирует файл - inputFile в файл - outputFile.
 function copy(inputFile = "", outputFile = "") {
   return new Promise((resolve, reject) => {
     if (!inputFile || !outputFile) {
@@ -64,6 +77,6 @@ function copy(inputFile = "", outputFile = "") {
 }
 
 module.exports = {
-  clean,
-  copy,
+  prepareBuildDir,
+  copy
 };
