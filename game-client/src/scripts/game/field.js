@@ -1,15 +1,22 @@
-import mathHelpers from "../helpers/math";
+import helpers from "../helpers";
 
-function Field(settings) {
+function Field(game, settings) {
   if (!(this instanceof Field)) {
     return new Field(settings);
   }
 
-  const { cellSize, canvasWidth, canvasHeight, countTapes } = settings;
+  const {
+    canvasWidth,
+    canvasHeight,
+    countTapes,
+    countProductsOnTape
+  } = settings;
 
-  const countCellsInWidth = canvasWidth / cellSize;
-  const countCellsInHeight = canvasHeight / cellSize;
+  const cellSize = Math.round(canvasWidth / countTapes / countProductsOnTape);
+  const countCellsInWidth = helpers.round(canvasWidth / cellSize);
+  const countCellsInHeight = helpers.round(canvasHeight / cellSize);
 
+  this.game = { field: {}, ...game };
   this.cellSize = cellSize;
   this.countCellsInWidth = countCellsInWidth;
   this.countCellsInHeight = countCellsInHeight;
@@ -24,7 +31,7 @@ Field.prototype.getTapesPositions = function () {
 
   for (let i = 0; i < countTapes; i++) {
     positions.push({
-      x: i * tapeSize + (i === 0 ? 0 : 1),
+      x: i * tapeSize,
       y: i * tapeSize + tapeSize,
     });
   }
@@ -39,7 +46,7 @@ Field.prototype.getInitialRandomPosition = function () {
 
   const positions = tapesPositions.reduce((accumulator, currentValue) => {
     accumulator.push({
-      x: mathHelpers.getRandomNumber(
+      x: helpers.getRandomNumber(
         currentValue.x,
         currentValue.x + this.tapeSize - 1
       ),
