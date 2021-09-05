@@ -1,12 +1,13 @@
 const fs = require("fs");
 const fse = require("fs-extra");
 const path = require("path");
-const version = require("../package.json").version;
+const settings = require("../configs/settings");
 
 // Подготавливает директорию сборки фронта
-//  Создаёт директорию сборки ./build если её нет, иначе очищаем её.
+// Создаёт директорию сборки ./build если её нет, иначе очищаем её.
 function prepareBuildDir() {
   const buildDir = "../build/";
+
   if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir);
   } else {
@@ -57,8 +58,12 @@ function copy(inputFile = "", outputFile = "") {
         return reject(error);
       }
 
-      const versionRegEx = new RegExp("VERSION", "g");
-      const result = data.replace(versionRegEx, version);
+      const nameClientRegExp = new RegExp("NAME", "g");
+      const versionRegExp = new RegExp("VERSION", "g");
+
+      const result = data
+                        .replace(nameClientRegExp, settings.NAME)
+                        .replace(versionRegExp, settings.VERSION);
 
       fs.writeFile(
         path.resolve(__dirname, outputFile),
