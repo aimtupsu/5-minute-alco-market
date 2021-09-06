@@ -26,11 +26,15 @@ public interface SessionStorage {
     boolean remove(@Nonnull WebSocketSession session);
 
     /**
-     * Возвращает множество WebSocket соединений с клиентами.
+     * Возвращает множество открытых WebSocket сессий с клиентами.
+     * <p>
+     * Чтобы клиентам не проверять открытость сессии и не хранить
+     * закрытые сессии, данный метод гарантирует, что все
+     * сессии из возвращаемое множество - открыты.
      *
-     * @return множество WebSocket соединений с клиентами.
+     * @return множество открытых WebSocket соединений с клиентами.
      */
     @Nonnull
-    Set<WebSocketSession> getSessions();
+    Set<WebSocketSession> getOpenedSessions();
 
 }

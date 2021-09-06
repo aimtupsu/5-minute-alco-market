@@ -1,0 +1,17 @@
+server:
+  port: 8082
+
+spring:
+  jackson:
+    # настройки сериализации
+    serialization:
+      # включено оборачивание объекта
+      wrap_root_value: true
+springdoc:
+  swagger-ui:
+    path: '/'
+    configUrl: '/v3/api-docs'
+    url: '/v3/api-docs'
+    disable-swagger-default-url: true
+#  api-docs:
+#    path: '/api/v1/docs'

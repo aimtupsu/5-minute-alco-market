@@ -29,8 +29,12 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         log.info("New session id={}", id);
         if (!sessionStorage.save(session)) {
             try {
-                log.info("Session could not be added to storage. Session is={} will be closed.", id);
-                session.close(CloseStatus.SERVICE_OVERLOAD);
+                final CloseStatus closeStatus = CloseStatus.SERVICE_OVERLOAD;
+                log.info(
+                        "Session could not be added to storage. Session is={} will be closed with status {}.",
+                        id, closeStatus
+                );
+                session.close(closeStatus);
                 log.info("Session id={} is closed.", id);
             } catch (IOException e) {
                 log.error("Session closing is failed", e);
@@ -52,7 +56,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         log.info("New message: \"{}\"", message.getPayload());
         // Отправляем в ответ тоже самое что и получили.
         session.sendMessage(message);
-        log.info("Message \"{}\" has been sent", message.getPayload());
+        log.info("DatamatrixBarcode \"{}\" has been sent", message.getPayload());
     }
 
 }

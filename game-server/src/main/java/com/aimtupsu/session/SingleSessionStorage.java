@@ -66,15 +66,25 @@ public class SingleSessionStorage implements SessionStorage {
     }
 
     /**
-     * @return множество из одного объекта WebSocket сессии,
+     * Возвращает множество из одного объекта WebSocket сессии,
      * если сессия есть, иначе пустое множество.
+     *
+     * Возвращаемое соединение - открыто.
+     * Если же в момент вызова метода, хранимое соединение закрыто,
+     * то оно удаляется.
+     *
+     * @return множество из одной открытой WebSocket сессии.
      */
     @Nonnull
     @Override
-    public Set<WebSocketSession> getSessions() {
-        return this.session == null
-                ? Collections.emptySet()
-                : Collections.singleton(this.session);
+    public Set<WebSocketSession> getOpenedSessions() {
+        if (session != null) {
+            if (session.isOpen()) {
+                return Collections.singleton(this.session);
+            }
+            this.remove(session);
+        }
+        return Collections.emptySet();
     }
 
 }
