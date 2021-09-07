@@ -6,23 +6,30 @@ function Canvas(game, settings) {
   }
 
   const {
+    canvasWidth,
+    canvasHeight,
     canvasContainerId,
     canvasBackgroundColor,
+    countTapes,
+    countCellsOnTape
   } = settings;
 
   this.game = { canvas: {}, ...game };
 
-  const {
-    countCellsInWidth,
-    countCellsInHeight,
-    cellSize
-  } = this.game.field;
+  const cellSize = helpers.round(canvasWidth / countTapes / countCellsOnTape);
+  const countCellsInWidth = helpers.round(canvasWidth / cellSize);
+  const countCellsInHeight = helpers.round(canvasHeight / cellSize);
 
   this.context = null;
+  this.cellSize = cellSize;
+  this.countCellsInWidth = countCellsInWidth;
+  this.countCellsInHeight = countCellsInHeight;
   this.canvasWidth = countCellsInWidth * cellSize;
   this.canvasHeight = countCellsInHeight * cellSize;
   this.canvasContainerId = canvasContainerId;
   this.canvasBackgroundColor = canvasBackgroundColor;
+  this.tapeSize = countCellsInWidth / countTapes;
+  this.countTapes = countTapes;
 
   this.setContext();
 }
@@ -74,16 +81,13 @@ Canvas.prototype.drawTapeLine = Canvas.prototype.drawLine.partialRight({
 
 Canvas.prototype.drawGrid = function () {
   const {
+    canvasWidth,
+    canvasHeight,
     cellSize,
     tapeSize,
     countTapes,
     countCellsInWidth,
     countCellsInHeight
-  } = this.game.field;
-
-  const {
-    canvasWidth,
-    canvasHeight
   } = this;
 
   for (let i = 0; i < countCellsInWidth; i++) {
@@ -147,6 +151,21 @@ Canvas.prototype.fillBackground = function () {
   context.fillRect(0, 0, canvasWidth, canvasHeight);
 
   return this;
+};
+
+Canvas.prototype.getTapesPositions = function () {
+  const { countTapes, tapeSize } = this;
+
+  const positions = [];
+
+  for (let i = 0; i < countTapes; i++) {
+    positions.push({
+      x: i * tapeSize,
+      y: i * tapeSize + tapeSize,
+    });
+  }
+
+  return positions;
 };
 
 export default Canvas;
