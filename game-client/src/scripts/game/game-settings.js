@@ -1,10 +1,10 @@
 const defaultSettings = {
   canvasWidth: 931,
-  canvasHeight: 603,
+  canvasHeight: 503,
   canvasBackgroundColor: "#eee",
   canvasContainerId: "application",
   countTapes: 5,
-  countProductsOnTape: 3,
+  countCellsOnTape: 3,
 };
 
 export default defaultSettings;

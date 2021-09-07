@@ -1,6 +1,5 @@
-import Field from "./field";
 import Canvas from "./canvas";
-import Cell from "./cell";
+import Wave from "./wave";
 
 import defaultSettings from "./game-settings";
 
@@ -15,38 +14,86 @@ function Game(customSettings) {
 
   const combineSettings = { ...defaultSettings, ...customSettings };
 
-  this.field = new Field(this, combineSettings);
   this.canvas = new Canvas(this, combineSettings);
 
-  this.products = this.field.getInitialRandomPosition();
+  this.waves = [];
+  this.wavesSpeeds = [];
+
+  this.currentWaveTimer = null;
+  this.currentWaveSpeed = null;
+  this.currentWave = null;
+
+  this.initWaves();
 
   Game.instance = this;
 }
 
-Game.prototype.drawProducts = function () {
-  this.products.forEach((value) => {
-    const product = new Cell(value.x, value.y);
-  
-    this.canvas.context.fillStyle = "#000";
-  
-    product.drawSquareCell(this);
-  });
+Game.prototype.initWaves = function () {
+  const waves = [];
+  const wavesSpeeds = []
+
+  for (let i = 0; i < 5; i++) {
+    waves.push(new Wave(this));
+    wavesSpeeds.push(1000 / (i + 1));
+  };
+
+  this.waves = waves;
+  this.wavesSpeeds = wavesSpeeds;
+  this.currentWave = waves[0];
+  this.currentWaveSpeed = wavesSpeeds[0];
 };
 
-Game.prototype.moveProducts = function () {
-  const newPositions = this.products.map((value) => ({ x: value.x, y: value.y + 1 }));
-
-  this.products = newPositions;
+Game.prototype.start = function () {
+  this.startCurrentWave();
 };
 
-Game.prototype.update = function () {
-  this.moveProducts();
+Game.prototype.switchWave = function () {
+  const { waves, wavesSpeeds } = this;
+
+  const nextWaveIdx = waves.findIndex((wave) => wave.length);
+
+  if (nextWaveIdx < 0) {
+    return;
+  }
+
+  this.currentWave = waves[nextWaveIdx];
+  this.currentWaveSpeed = wavesSpeeds[nextWaveIdx];
+
+  this.start();
 };
 
-Game.prototype.draw = function () {
-  this.canvas.clear();
-  this.canvas.fillBackground().drawGrid();
-  this.drawProducts();
+/** Методы текущий волны */
+
+Game.prototype.drawCurrentWave = function () {
+  this.canvas.clear()
+             .fillBackground()
+             .drawGrid();
+
+  this.currentWave.update();
+  this.currentWave.draw();
+};
+
+Game.prototype.updateCurrentWave = function () {
+  this.currentWave.move();
+  this.stopCurrentWave();
+};
+
+Game.prototype.startCurrentWave = function () {
+  this.currentWaveTimer = setInterval(() => {
+    console.log('tick');
+    this.drawCurrentWave();
+    this.updateCurrentWave();
+  }, this.currentWaveSpeed);
+};
+
+Game.prototype.stopCurrentWave = function () {
+  const { currentWave, currentWaveTimer } = this;
+
+  if (!currentWave.length) {
+    console.log('stop');
+    clearInterval(currentWaveTimer);
+    this.switchWave();
+  }
 };
 
 export default Game;

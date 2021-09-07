@@ -8,12 +8,7 @@ import Game from "./scripts/game/game";
 window.onload = () => {
   const game = new Game();
 
-  function main() {
-    game.draw();
-    game.update();
-  }
+  console.log('game: ', game);
 
-  //setInterval(function () {
-    main();
-  //}, 1000 / 5);
+  game.start();
 };
