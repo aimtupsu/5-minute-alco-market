@@ -14,12 +14,11 @@ function Canvas(game, settings) {
     countCellsOnTape
   } = settings;
 
-  this.game = { canvas: {}, ...game };
-
   const cellSize = helpers.round(canvasWidth / countTapes / countCellsOnTape);
   const countCellsInWidth = helpers.round(canvasWidth / cellSize);
   const countCellsInHeight = helpers.round(canvasHeight / cellSize);
 
+  this.game = game;
   this.context = null;
   this.cellSize = cellSize;
   this.countCellsInWidth = countCellsInWidth;
@@ -38,8 +37,16 @@ Canvas.prototype._clear = function () {
   CanvasRenderingContext2D.prototype.clearRect.apply(this.context, helpers.asArray(arguments));
 };
 
-Canvas.prototype.clear = function () {
+Canvas.prototype.clearAll = function () {
   this._clear(0, 0, this.canvasWidth, this.canvasHeight);
+
+  return this;
+};
+
+Canvas.prototype.clearYRect = function (fromY, toY) {
+  const { cellSize, canvasWidth } = this;
+
+  this._clear(0, fromY * cellSize, canvasWidth, (toY - fromY + 1) * cellSize);
 
   return this;
 };
@@ -130,6 +137,8 @@ Canvas.prototype.renderIntoDOM = function () {
     document.body.appendChild(canvas);
   }
 
+  this._bindEvents(canvas);
+
   return canvas;
 };
 
@@ -139,16 +148,31 @@ Canvas.prototype.setContext = function () {
   return this;
 };
 
-Canvas.prototype.fillBackground = function () {
+Canvas.prototype._bindEvents = function (canvas) {
+  const { cellSize, game } = this;
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.addEventListener("click", (event) => {
+    const x = event.clientX - rect.left,
+          y = event.clientY - rect.top;
+
+    const resX = helpers.floor(x / cellSize),
+          resY = helpers.floor(y / cellSize) + 1;
+
+    game.check(resX, resY);
+  }, false);
+};
+
+Canvas.prototype.fillYBackground = function (fromY, toY, color) {
   const {
     context,
     canvasWidth,
-    canvasHeight,
-    canvasBackgroundColor
+    canvasBackgroundColor,
+    cellSize,
   } = this;
 
   context.fillStyle = canvasBackgroundColor;
-  context.fillRect(0, 0, canvasWidth, canvasHeight);
+  context.fillRect(0, fromY * cellSize, canvasWidth, (toY - fromY + 1) * cellSize);
 
   return this;
 };

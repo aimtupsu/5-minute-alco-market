@@ -7,7 +7,7 @@ function Wave(game) {
     return new Wave(game);
   }
 
-  this.game = { wave: {}, ...game };
+  this.game = game;
   this.products = this.createProducts();
   this.length = this.products.length;
 }
@@ -20,10 +20,10 @@ Wave.prototype.getInitialRandomPosition = function () {
 
   const positions = tapesPositions.reduce((accumulator, currentValue, _, array) => {
     const x = helpers.getRandomNumber(currentValue.x, currentValue.x + canvas.tapeSize - 1);
-    const y = helpers.getRandomNumber(1, array.length, initialYPositions);
+    const y = helpers.getRandomNumber(0, array.length - 1, initialYPositions);
 
     initialYPositions.push(y);
-    accumulator.push({ x, y: -y }); // -y
+    accumulator.push({ x, y: -y });
 
     return accumulator;
   }, []);
@@ -58,18 +58,22 @@ Wave.prototype.move = function () {
 };
 
 Wave.prototype.update = function () {
+  this.removeProducts(this._check());
+};
+
+Wave.prototype._check = function () {
   const { products } = this;
   const { canvas } = this.game;
 
   const deleteIndx = [];
   
   products.forEach((product, index) => {
-    if (product.y >= canvas.countCellsInHeight) {
+    if (product.y > canvas.countCellsInHeight) {
       deleteIndx.push(index);
     }
   });
 
-  this.removeProducts(deleteIndx);
+  return deleteIndx;
 };
 
 Wave.prototype.removeProducts = function (indexes) {
