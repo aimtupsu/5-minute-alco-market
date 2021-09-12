@@ -1,0 +1,33 @@
+.button {
+  font-size: 1.5rem;
+  color: $secondary-text-color;
+  background: $primary-btn-bg-color;
+  padding: 0.3em 0.7em;
+  letter-spacing: 0.2em;
+  display: inline-block;
+  cursor: pointer;
+  margin: 0.5em;
+  border-radius: 0.2em;
+  box-shadow: 1px 5px 1px 1px darken($primary-btn-bg-color, 8),
+    0px 7px 1px 1px transparentize($shadow-color, 0.5);
+  transition: box-shadow ease 0.15s, transform ease 0.2s;
+  user-select: none;
+
+  &:active {
+    opacity: 0.9;
+    transform: translateY(5px);
+    box-shadow: 0px 0px 0px 0px $shadow-color;
+  }
+
+  &--start {
+    background: $jade;
+    box-shadow: 1px 5px 1px 1px darken($jade, 8),
+      0px 7px 1px 1px transparentize($shadow-color, 0.5);
+  }
+
+  &--stop {
+    background: $speechRed;
+    box-shadow: 1px 5px 1px 1px darken($speechRed, 8),
+      0px 7px 1px 1px transparentize($shadow-color, 0.5);
+  }
+}

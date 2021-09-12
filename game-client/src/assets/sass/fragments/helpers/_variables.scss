@@ -1,6 +1,9 @@
 /* Палитра цветов */
+$white: #fff;
 $black: #000;
 $jade: #00bf79;
+$cobalt: #0d47a1;
+$speechRed: #cc0000;
 
 /* Размеры шрифтов */
 $primary-font-size: 1rem;
@@ -12,4 +15,8 @@ $secondary-font: "Pixeboy", Arial, serif;
 
 /* Функциональные переменные */
 $primary-text-color: $black;
-$secondary-text-color: $jade;
+$secondary-text-color: $white;
+
+$primary-btn-bg-color: $cobalt;
+
+$shadow-color: $black;
