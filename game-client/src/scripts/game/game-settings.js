@@ -1,6 +1,6 @@
 const defaultSettings = {
   canvasWidth: 931,
-  canvasHeight: 603,
+  canvasHeight: 503,
   canvasBackgroundColor: "#eee",
   canvasContainerId: "application",
   countTapes: 5,
