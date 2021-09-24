@@ -4,19 +4,20 @@ $black: #000;
 $jade: #00bf79;
 $cobalt: #0d47a1;
 $speechRed: #cc0000;
+$antique: #faebd7;
+$grey: #888888;
 
 /* Размеры шрифтов */
-$primary-font-size: 1rem;
-$secondary-font-size: 10px;
+$primary-font-size: 2rem;
+$secondary-font-size: 1em;
 
 /* Типография */
 $primary-font: "Pixeboy", Tahoma, serif;
 $secondary-font: "Pixeboy", Arial, serif;
 
 /* Функциональные переменные */
+$app-background: $antique;
 $primary-text-color: $black;
 $secondary-text-color: $white;
-
 $primary-btn-bg-color: $cobalt;
-
 $shadow-color: $black;

@@ -1,0 +1,30 @@
+.overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: transparentize($black, 0.2);
+  justify-content: center;
+  align-items: center;
+
+  &--show {
+    display: flex;
+  }
+
+  &--hide {
+    display: none;
+  }
+}
+
+.info {
+  font-size: 0.5rem;
+  text-align: center;
+  animation: info ease 1s forwards;
+}
+
+@keyframes info {
+  100% {
+    font-size: 8rem;
+  }
+}

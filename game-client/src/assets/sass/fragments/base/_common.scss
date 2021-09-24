@@ -1,6 +1,5 @@
 :root {
   font-size: calc(0.5em + 1vw);
-  box-sizing: border-box;
   font-family: $primary-font;
   color: $primary-text-color;
   line-height: 1.2;
@@ -9,6 +8,7 @@
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 
   &::after,
   &::before {
@@ -25,4 +25,18 @@ img {
 ul,
 ol {
   list-style-type: none;
+}
+
+canvas {
+  display: block;
+}
+
+/** Support classes */
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-0 {
+  flex: 0;
 }

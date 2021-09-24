@@ -1,10 +1,11 @@
-function Product(x, y) {
+function Product(id, x, y) {
   if (!(this instanceof Product)) {
-    return new Product(x, y, moveDelay);
+    return new Product(id, x, y);
   }
 
   this.x;
   this.y;
+  this.id = id;
 
   this.move(x, y);
 }

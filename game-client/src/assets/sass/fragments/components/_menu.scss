@@ -1,0 +1,21 @@
+.menu {
+  font-size: $primary-font-size;
+  color: $secondary-text-color;
+
+  &__title {
+    margin-bottom: 1em;
+    text-align: center;
+    border-bottom: 2px solid;
+  }
+
+  &__list {
+    li {
+      cursor: pointer;
+      list-style-type: disc;
+
+      &:hover {
+        color: $speechRed;
+      }
+    }
+  }
+}
