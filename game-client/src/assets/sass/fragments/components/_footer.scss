@@ -1,0 +1,21 @@
+.stats {
+  font-size: $primary-font-size;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.25em 0;
+
+  &__score,
+  &__lives {
+    font-size: $secondary-font-size;
+    display: flex;
+
+    > div {
+      margin-right: 0.25em;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+}

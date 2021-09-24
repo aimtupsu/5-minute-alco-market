@@ -1,37 +1,56 @@
 import helpers from "../helpers";
 
-function Canvas(game, settings) {
+import constants from "../../constants";
+
+function Canvas(settings, callbacks = {}) {
   if (!(this instanceof Canvas)) {
-    return new Canvas(settings);
+    return new Canvas(settings, callbacks);
   }
 
   const {
-    canvasWidth,
-    canvasHeight,
     canvasContainerId,
     canvasBackgroundColor,
     countTapes,
     countCellsOnTape
   } = settings;
 
-  const cellSize = helpers.round(canvasWidth / countTapes / countCellsOnTape);
-  const countCellsInWidth = helpers.round(canvasWidth / cellSize);
-  const countCellsInHeight = helpers.round(canvasHeight / cellSize);
-
-  this.game = game;
+  this.callbacks = callbacks;
   this.context = null;
+  this.cellSize = null;
+  this.countCellsInWidth = null
+  this.countCellsInHeight = null;
+  this.canvasWidth = null;
+  this.canvasHeight = null;
+  this.tapeSize = null;
+  this.countTapes = countTapes;
+  this.countCellsOnTape = countCellsOnTape;
+  this.canvasContainerId = canvasContainerId;
+  this.canvasBackgroundColor = canvasBackgroundColor;
+
+  this._initialize();
+  this._setContext();
+  this._bindEvents();
+}
+
+Canvas.prototype._initialize = function () {
+  const { countTapes, countCellsOnTape } = this;
+  const { w, h } = this._getSizeContainer();
+
+  const cellSize = helpers.floor(w / countTapes / countCellsOnTape);
+  const countCellsInWidth = helpers.floor(w / cellSize);
+  const countCellsInHeight = helpers.floor(h / cellSize);
+
   this.cellSize = cellSize;
   this.countCellsInWidth = countCellsInWidth;
   this.countCellsInHeight = countCellsInHeight;
   this.canvasWidth = countCellsInWidth * cellSize;
   this.canvasHeight = countCellsInHeight * cellSize;
-  this.canvasContainerId = canvasContainerId;
-  this.canvasBackgroundColor = canvasBackgroundColor;
   this.tapeSize = countCellsInWidth / countTapes;
-  this.countTapes = countTapes;
+};
 
-  this.setContext();
-}
+Canvas.prototype._setContext = function () {
+  this.context = this._renderIntoDOM().getContext('2d');
+};
 
 Canvas.prototype._clear = function () {
   CanvasRenderingContext2D.prototype.clearRect.apply(this.context, helpers.asArray(arguments));
@@ -43,15 +62,7 @@ Canvas.prototype.clearAll = function () {
   return this;
 };
 
-Canvas.prototype.clearYRect = function (fromY, toY) {
-  const { cellSize, canvasWidth } = this;
-
-  this._clear(0, fromY * cellSize, canvasWidth, (toY - fromY + 1) * cellSize);
-
-  return this;
-};
-
-Canvas.prototype.setContextAttrs = function (objectProps) {
+Canvas.prototype._setContextAttrs = function (objectProps) {
   const { context } = this;
 
   for (let prop in objectProps) {
@@ -65,7 +76,7 @@ Canvas.prototype.drawLine = function (fromX, fromY, toX, toY, props = false) {
   const { context } = this;
 
   if (props) {
-    this.setContextAttrs(props);
+    this._setContextAttrs(props);
   }
 
   context.beginPath();
@@ -118,39 +129,50 @@ Canvas.prototype.drawGrid = function () {
   return this;
 };
 
-Canvas.prototype.renderIntoDOM = function () {
-  const {
-    canvasWidth,
-    canvasHeight,
-    canvasContainerId
-  } = this;
+Canvas.prototype._getContainer = function () {
+  return document.getElementById(this.canvasContainerId) || document.body;
+};
+
+Canvas.prototype._getSizeContainer = function (element) {
+  const container = element || this._getContainer();
+
+  const rect = container.getBoundingClientRect();
+
+  return {
+    w: helpers.round(rect.width),
+    h: helpers.round(rect.height),
+  };
+};
+
+Canvas.prototype._renderIntoDOM = function () {
+  const { canvasWidth, canvasHeight } = this;
+  const container = this._getContainer();
 
   const canvas = document.createElement("canvas");
-  const container = document.getElementById(canvasContainerId);
 
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
 
-  if (container) {
-    container.appendChild(canvas);
-  } else {
-    document.body.appendChild(canvas);
-  }
-
-  this._bindEvents(canvas);
+  container.appendChild(canvas);
 
   return canvas;
 };
 
-Canvas.prototype.setContext = function () {
-  this.context = this.renderIntoDOM().getContext("2d");
+Canvas.prototype._bindEvents = function () {
+  const { cellSize, context: { canvas }, callbacks } = this;
 
-  return this;
-};
-
-Canvas.prototype._bindEvents = function (canvas) {
-  const { cellSize, game } = this;
   const rect = canvas.getBoundingClientRect();
+
+  window.addEventListener('resize', () => {
+    const { canvasWidth, canvasHeight } = this;
+
+    this._initialize();
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    this.drawGrid();
+  }, false);
 
   canvas.addEventListener("click", (event) => {
     const x = event.clientX - rect.left,
@@ -159,22 +181,8 @@ Canvas.prototype._bindEvents = function (canvas) {
     const resX = helpers.floor(x / cellSize),
           resY = helpers.floor(y / cellSize) + 1;
 
-    game.check(resX, resY);
+    callbacks.updateStats && callbacks.updateStats(constants.statsType.SCORE, { x: resX, y: resY });
   }, false);
-};
-
-Canvas.prototype.fillYBackground = function (fromY, toY, color) {
-  const {
-    context,
-    canvasWidth,
-    canvasBackgroundColor,
-    cellSize,
-  } = this;
-
-  context.fillStyle = canvasBackgroundColor;
-  context.fillRect(0, fromY * cellSize, canvasWidth, (toY - fromY + 1) * cellSize);
-
-  return this;
 };
 
 Canvas.prototype.getTapesPositions = function () {

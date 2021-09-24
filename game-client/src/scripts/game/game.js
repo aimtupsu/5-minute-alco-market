@@ -1,6 +1,8 @@
 import Canvas from "./canvas";
 import Wave from "./wave";
 
+import layout from "../layout";
+
 import helpers from "../helpers";
 
 import constants from "../../constants";
@@ -18,16 +20,23 @@ function Game(customSettings) {
 
   const combineSettings = { ...defaultSettings, ...customSettings };
 
-  this.canvas = new Canvas(this, combineSettings);
+  this.callbacks = {
+    updateStats: this.updateStats.bind(this),
+  };
+
+  this.canvas = new Canvas(combineSettings, this.callbacks);
 
   // Массив волн
   this.waves = [];
 
+  // Индекс текущей волны
+  this.currentWaveIndex = null;
+
   // Делители для частоты отрисовки, будем делить 1 секунду на значение, должен быть > 0
   this.wavesSpeeds = [];
 
-  // Задержки начальной отрисовки волн, в секундах
-  this.wavesDelays = [];
+  // Задержка начальной отрисовки волны, в секундах
+  this.waveDelay = null;
 
   // Хранилище таймеров для перерисовки волн
   // Необходимо очищать значение для волны, когда количество элементов в волне закончилось
@@ -42,53 +51,44 @@ function Game(customSettings) {
   // Кол-во жизней
   this.lives = null;
 
+  // Количество очков
+  this.score = null;
+
   this._initialize();
 
   Game.instance = this;
 }
 
 Game.prototype._initialize = function () {
-  const { canvas } = this;
+  const { canvas, callbacks } = this;
 
   const waves = [],
-        wavesSpeeds = [],
-        wavesDelays = [];
+        wavesSpeeds = [];
 
   const level = this._level();
 
   // Задаем начальные значение для первой волны, от нее будем высчитывать значения для других волн
-  waves.push(new Wave(this));
+  waves.push(new Wave(canvas, callbacks));
   wavesSpeeds.push(constants.FIRST_WAVE_SPEED);
-  wavesDelays.push(constants.FIRST_WAVE_DELAY);
 
-  for (let i = 1; i <= level.waves; i++) {
-    // Берем предыдущую волну
-    const wave = waves[i - 1];
-
-    // Находим элемент в волне, который имеет наименьшее значение по оси Y
-    const minY = helpers.getMinInArray(wave.products.map((product) => product.y));
-
-    // Находим середину полотна
-    const middleCell = canvas.countCellsInHeight / 2;
-
-    // Находим общее количество ячеек которое пройдет верхний элемент
-    const totalCells = helpers.abs(minY) + middleCell;
-
-    // Высчитываем время задержки отрисовки волн:
-    // Скорость прохождения одной клетки(1 / speed) * общее количество клеток + задержка пред. волны
+  for (let i = 1; i < level.waves; i++) {
     const speed = wavesSpeeds[i - 1];
-    const delay = wavesDelays[i - 1];
-    const waveDelay = helpers.round(1 / speed * totalCells + delay);
 
-    waves.push(new Wave(this));
-    wavesDelays.push(waveDelay);
+    waves.push(new Wave(canvas, callbacks));
     wavesSpeeds.push(helpers.round(speed * level.faster * 100) / 100);
   };
 
   this.waves = waves;
+  this.currentWaveIndex = 0;
   this.wavesSpeeds = wavesSpeeds;
-  this.wavesDelays = wavesDelays;
+  this.waveDelay = constants.WAVE_DELAY;
   this.lives = level.lives;
+  this.score = 0;
+
+  canvas.clearAll().drawGrid();
+
+  layout.renderLives(level.waves);
+  layout.showMenu();
 };
 
 Game.prototype._level = function () {
@@ -123,108 +123,116 @@ Game.prototype._level = function () {
 };
 
 Game.prototype.start = function () {
-  const {
-    waves,
-    wavesDelays,
-    wavesSpeeds
-  } = this;
-
-  waves.forEach((wave, index) => {
-    this._animate(wave, wavesDelays[index], wavesSpeeds[index], index);
-  });
+  this._animate();
 };
 
 Game.prototype.stop = function () {
-  const { wavesIntervalTimers, wavesTimeoutTimers } = this;
+  const { wavesIntervalTimers, wavesTimeoutTimers, score } = this;
 
   wavesIntervalTimers.forEach(clearInterval);
   wavesTimeoutTimers.forEach(clearTimeout);
+
+  layout.showEnd(score);
 };
 
-Game.prototype.update = function (currentWaveIndex) {
-  const { waves, wavesIntervalTimers } = this;
+Game.prototype.updateStats = function (type, params) {
+  const { currentWaveIndex, waves, score, lives } = this;
 
-  if (!waves[currentWaveIndex].length) {
-    clearInterval(wavesIntervalTimers[currentWaveIndex]);
-  }
-};
+  switch(type) {
+    case constants.statsType.LIVES:
+      const { count } = params;
 
-Game.prototype._getWaveBound = function (i) {
-  const { waves, canvas } = this;
+      const newLives = lives - count;
+      this.lives = newLives;
 
-  const wave = waves[i];
-  const prevWave = waves[i - 1];
-  const nextWave = waves[i + 1];
-
-  const positionsY = wave.products.map((product) => product.y);
-
-  let min = helpers.getMinInArray(positionsY),
-      max = helpers.getMaxInArray(positionsY);
-
-  if (nextWave && nextWave.length) {
-    const nextMax = helpers.getMaxInArray(nextWave.products.map((product) => product.y));
-
-    if (helpers.isNumeric(nextMax)) {
-      min = nextMax;
-    }
-  } else {
-    min = 0;
-  }
-
-  if (prevWave && prevWave.length) {
-    const prevMin = helpers.getMinInArray(prevWave.products.map((product) => product.y));
-
-    if (helpers.isNumeric(prevMin)) {
-
-    }
-  } else {
-    max = canvas.countCellsInHeight;
-  }
-
-  return { max, min };
-};
-
-Game.prototype.check = function (x, y) {
-  const { waves } = this;
-
-  waves.forEach((wave) => {
-    wave.products.forEach((product, index) => {
-      if (product.x === x && product.y === y) {
-        wave.removeProducts([index]);
+      if (newLives === 0) {
+        this.stop();
       }
-    });
-  });
+
+      layout.updateLives(count);
+
+      break;
+
+    case constants.statsType.SCORE:
+      const wave = waves[currentWaveIndex];
+
+      const { x, y } = params;
+
+      const searchProduct = wave.products.filter((product) => product.x === x && product.y === y)[0];
+
+      if (searchProduct) {
+        const newScore = score + currentWaveIndex + 1;
+        this.score = newScore;
+
+        wave.update(searchProduct.id);
+
+        layout.renderScore(newScore);
+      }
+
+      break;
+
+    default:
+      return;
+  }
 };
 
-Game.prototype._animate = function (wave, delay, speed, index) {
-  const game = this;
+Game.prototype._update = function () {
+  const { waves, wavesIntervalTimers, currentWaveIndex } = this;
+  const wave = waves[currentWaveIndex];
 
+  if (!wave.products.length) {
+    clearInterval(wavesIntervalTimers[currentWaveIndex]);
+
+    const nextWaveIndex = currentWaveIndex + 1;
+
+    if (nextWaveIndex < waves.length) {
+      this.currentWaveIndex = nextWaveIndex;
+      this._animate();
+    } else {
+      this.stop();
+      return;
+    }
+
+  } else {
+    wave.update();
+  }
+};
+
+Game.prototype._animate = function () {
   const {
     wavesTimeoutTimers,
     wavesIntervalTimers,
-    canvas
-  } = game;
+    currentWaveIndex,
+    waves,
+    waveDelay,
+    wavesSpeeds,
+    canvas,
+  } = this;
 
   let timer = null;
 
-  wavesTimeoutTimers.push(timer = setTimeout(function () {
+  const wave = waves[currentWaveIndex];
+  const speed = wavesSpeeds[currentWaveIndex];
+
+  layout.showWave(currentWaveIndex);
+
+  wavesTimeoutTimers.push(timer = setTimeout(() => {
     // Волна запущена, можно очистить таймер
     clearTimeout(timer);
 
-    wavesIntervalTimers.push(setInterval(function () {
-      const { min, max } = game._getWaveBound(index);
+    layout.hideOverlay();
 
-      canvas.clearYRect(min, max).fillYBackground(min, max)// .drawGrid();
+    wavesIntervalTimers.push(setInterval(() => {
 
-      wave.draw();
-      wave.move();
+    canvas.clearAll().drawGrid();
 
-      game.update.call(game, index);
+    wave.draw().move();
 
-      wave.update();
-    }, helpers.round(1000 / speed)));
+    this._update();
 
-  }, delay * 1000));
+    }, helpers.round(constants.ONE_ITERATION / speed)));
+
+  }, constants.ONE_ITERATION * waveDelay));
 };
 
 export default Game;

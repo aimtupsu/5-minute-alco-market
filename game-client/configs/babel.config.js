@@ -5,7 +5,14 @@ const plugins = [
 ];
 
 const config = {
-  presets: ["@babel/preset-env"],
+  presets: [
+    [
+      "@babel/preset-env", {
+        useBuiltIns: "usage",
+        corejs: "3.18.0",
+      }
+    ]
+  ],
   plugins,
 };
 

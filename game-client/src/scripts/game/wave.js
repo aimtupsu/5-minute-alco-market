@@ -2,18 +2,29 @@ import Product from "./product";
 
 import helpers from "../helpers";
 
-function Wave(game) {
+import constants from "../../constants";
+
+function Wave(canvas, callbacks = {}) {
   if (!(this instanceof Wave)) {
-    return new Wave(game);
+    return new Wave(canvas, callbacks);
   }
 
-  this.game = game;
-  this.products = this.createProducts();
-  this.length = this.products.length;
+  this.canvas = canvas;
+  this.callbacks = callbacks;
+  this.products = [];
+
+  this._initialize();
 }
 
-Wave.prototype.getInitialRandomPosition = function () {
-  const { canvas } = this.game;
+Wave.prototype._initialize = function () {
+  const productsPositions = this._getInitialRandomPosition();
+  const products = productsPositions.map((value, index) => new Product(index, value.x, value.y));
+
+  this.products = products;
+};
+
+Wave.prototype._getInitialRandomPosition = function () {
+  const { canvas } = this;
 
   const tapesPositions = canvas.getTapesPositions();
   const initialYPositions = [];
@@ -31,20 +42,12 @@ Wave.prototype.getInitialRandomPosition = function () {
   return positions;
 };
 
-Wave.prototype.createProducts = function () {
-  const productsPositions = this.getInitialRandomPosition();
-
-  const products = productsPositions.map((value) => new Product(value.x, value.y));
-
-  return products;
-};
-
 Wave.prototype.draw = function () {
-  const { canvas } = this.game;
+  const { canvas, products } = this;
 
-  this.products.forEach((product) => {
-    product.draw(canvas);
-  });
+  products.forEach((product) => { product.draw(canvas); });
+
+  return this;
 };
 
 Wave.prototype.move = function () {
@@ -57,32 +60,43 @@ Wave.prototype.move = function () {
   return this;
 };
 
-Wave.prototype.update = function () {
-  this.removeProducts(this._check());
+Wave.prototype.update = function (productId) {
+  const { callbacks } = this;
+
+  if (helpers.isNumeric(productId)) {
+    this._removeProducts([productId]);
+  } else {
+    const deleteProducts = this._checkProducts();
+
+    if (deleteProducts.length) {
+      this._removeProducts(deleteProducts);
+
+      callbacks.updateStats &&
+        callbacks.updateStats(constants.statsType.LIVES, { count: deleteProducts.length });
+    }
+  }
 };
 
-Wave.prototype._check = function () {
-  const { products } = this;
-  const { canvas } = this.game;
+Wave.prototype._checkProducts = function () {
+  const { products, canvas } = this;
 
-  const deleteIndx = [];
+  const deleteProductsIds = [];
   
-  products.forEach((product, index) => {
+  products.forEach((product) => {
     if (product.y > canvas.countCellsInHeight) {
-      deleteIndx.push(index);
+      deleteProductsIds.push(product.id);
     }
   });
 
-  return deleteIndx;
+  return deleteProductsIds;
 };
 
-Wave.prototype.removeProducts = function (indexes) {
+Wave.prototype._removeProducts = function (ids) {
   const { products } = this;
 
-  const newProducts = products.filter((_, index) => !indexes.includes(index));
+  const newProducts = products.filter(({ id }) => !ids.includes(id));
 
   this.products = newProducts;
-  this.length = newProducts.length;
 };
 
 export default Wave;

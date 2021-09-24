@@ -7,10 +7,21 @@
     <title>NAME</title>
 </head>
 <body>
-    <div id="application"></div>
-    <div class="button button--start">Start</div>
-    <div class="button button--stop">Stop</div>
-    <div class="button">Settings</div>
+    <div class="application">
+        <div class="application__title">Alco Market</div>
+        <div id="canvas-container" class="flex-1">
+            <div id="overlay" class="overlay overlay--hide">
+                <div class="overlay__content"></div>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stats__score">
+                <div class="caption">Your score:</div>
+                <div id="score" class="score">0</div>
+            </div>
+            <div id="lives" class="stats__lives"></div>
+        </div>
+    </div>
     <script src="bundle.VERSION.js"></script>
 </body>
 </html>

@@ -6,31 +6,38 @@ const level = {
 
 const lives = {
   EASY: 5,
-  NORMAL: 3,
-  HARD: 1,
+  NORMAL: 4,
+  HARD: 3,
 };
 
 const waves = {
   EASY: 5,
   NORMAL: 7,
-  HARD: 10,
+  HARD: 9,
 }
 
 const faster = {
   EASY: 1.2,
-  NORMAL: 1.4,
-  HARD: 1.6,
+  NORMAL: 1.3,
+  HARD: 1.4,
+};
+
+const statsType = {
+  LIVES: "LIVES",
+  SCORE: "SCORE",
 };
 
 const FIRST_WAVE_SPEED = 1.2;
-// Делаем задержку первой волны не равную 0, чтобы дать пользователю подготовиться :)
-const FIRST_WAVE_DELAY = 1;
+const WAVE_DELAY = 2;
+const ONE_ITERATION = 1000;
 
 export default {
   level,
   lives,
   waves,
   faster,
+  statsType,
   FIRST_WAVE_SPEED,
-  FIRST_WAVE_DELAY,
+  WAVE_DELAY,
+  ONE_ITERATION,
 };
