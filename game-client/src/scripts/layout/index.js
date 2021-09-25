@@ -76,6 +76,12 @@ function showEnd(score) {
   showOverlay(content);
 };
 
+function showLoader() {
+  const content = `<div class="loader"></div>`;
+
+  showOverlay(content);
+};
+
 export default {
   renderScore,
   renderLives,
@@ -85,4 +91,5 @@ export default {
   showMenu,
   showWave,
   showEnd,
+  showLoader,
 }

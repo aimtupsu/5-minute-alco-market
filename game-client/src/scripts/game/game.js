@@ -7,6 +7,8 @@ import helpers from "../helpers";
 
 import constants from "../../constants";
 
+import texture from '../texture';
+
 import defaultSettings from "./game-settings";
 
 function Game(customSettings) {
@@ -60,35 +62,45 @@ function Game(customSettings) {
 }
 
 Game.prototype._initialize = function () {
-  const { canvas, callbacks } = this;
+  layout.showLoader();
 
-  const waves = [],
-        wavesSpeeds = [];
+  // Загружаем всё необходимое
+  const assets = Object.values(texture.qr).map((qr) => helpers.loadImageSource(qr));
 
-  const level = this._level();
+  Promise.all(assets).then((images) => {
+    const { canvas, callbacks } = this;
 
-  // Задаем начальные значение для первой волны, от нее будем высчитывать значения для других волн
-  waves.push(new Wave(canvas, callbacks));
-  wavesSpeeds.push(constants.FIRST_WAVE_SPEED);
+    const waves = [],
+          wavesSpeeds = [];
 
-  for (let i = 1; i < level.waves; i++) {
-    const speed = wavesSpeeds[i - 1];
+    const level = this._level();
 
-    waves.push(new Wave(canvas, callbacks));
-    wavesSpeeds.push(helpers.round(speed * level.faster * 100) / 100);
-  };
+    // Задаем начальные значение для первой волны, от нее будем высчитывать значения для других волн
+    waves.push(new Wave(canvas, callbacks, images));
+    wavesSpeeds.push(constants.FIRST_WAVE_SPEED);
 
-  this.waves = waves;
-  this.currentWaveIndex = 0;
-  this.wavesSpeeds = wavesSpeeds;
-  this.waveDelay = constants.WAVE_DELAY;
-  this.lives = level.lives;
-  this.score = 0;
+    for (let i = 1; i < level.waves; i++) {
+      const speed = wavesSpeeds[i - 1];
 
-  canvas.clearAll().drawGrid();
+      waves.push(new Wave(canvas, callbacks, images));
+      wavesSpeeds.push(helpers.round(speed * level.faster * 100) / 100);
+    };
 
-  layout.renderLives(level.waves);
-  layout.showMenu();
+    this.waves = waves;
+    this.currentWaveIndex = 0;
+    this.wavesSpeeds = wavesSpeeds;
+    this.waveDelay = constants.WAVE_DELAY;
+    this.lives = level.lives;
+    this.score = 0;
+
+    canvas.clearAll().drawGrid();
+
+    layout.renderLives(level.waves);
+    layout.showMenu();
+  })
+  .catch(() => {
+    layout.showOverlay("При загрузке произошла ошибка!");
+  });
 };
 
 Game.prototype._level = function () {

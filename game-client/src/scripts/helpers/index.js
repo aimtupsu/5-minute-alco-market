@@ -32,6 +32,16 @@ function isNumeric(number) {
   return !isNaN(number) && isFinite(number);
 }
 
+function loadImageSource(source) {
+  const image = new Image();
+
+  return new Promise((resolve, reject) => {
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = `${window.location.origin}/${source}`;
+  });
+};
+
 export default {
   getRandomNumber,
   getMinInArray,
@@ -41,4 +51,5 @@ export default {
   round,
   floor,
   abs,
+  loadImageSource,
 };
