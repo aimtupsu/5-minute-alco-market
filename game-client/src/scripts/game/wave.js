@@ -4,12 +4,13 @@ import helpers from "../helpers";
 
 import constants from "../../constants";
 
-function Wave(canvas, callbacks = {}) {
+function Wave(canvas, callbacks = {}, images) {
   if (!(this instanceof Wave)) {
     return new Wave(canvas, callbacks);
   }
 
   this.canvas = canvas;
+  this.images = images;
   this.callbacks = callbacks;
   this.products = [];
 
@@ -17,8 +18,10 @@ function Wave(canvas, callbacks = {}) {
 }
 
 Wave.prototype._initialize = function () {
+  const { images } = this;
+
   const productsPositions = this._getInitialRandomPosition();
-  const products = productsPositions.map((value, index) => new Product(index, value.x, value.y));
+  const products = productsPositions.map((value, index) => new Product(index, images[index], value.x, value.y));
 
   this.products = products;
 };

@@ -1,0 +1,15 @@
+.loader {
+  font-size: $primary-font-size;
+  width: 4em;
+  height: 4em;
+  border-radius: 100%;
+  border: 1em solid rgba($white, 0.2);
+  border-top-color: $white;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
