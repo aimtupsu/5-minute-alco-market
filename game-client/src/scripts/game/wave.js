@@ -4,6 +4,16 @@ import helpers from "../helpers";
 
 import constants from "../../constants";
 
+/**
+ * Функция создания и инициализации волны товаров на лентах.
+ * Волна - множество товаров, расположенных на игровом поле,
+ * на так называемых лентах.
+ * @param canvas
+ * @param callbacks
+ * @param images
+ * @returns {Wave}
+ * @constructor
+ */
 function Wave(canvas, callbacks = {}, images) {
   if (!(this instanceof Wave)) {
     return new Wave(canvas, callbacks);
@@ -17,15 +27,25 @@ function Wave(canvas, callbacks = {}, images) {
   this._initialize();
 }
 
+/**
+ * Функция инициализации новой волны.
+ * Получает рандомные позиции новых товаров волны и
+ * в этих позиция затем создаёт новые товары.
+ */
 Wave.prototype._initialize = function () {
   const { images } = this;
 
   const productsPositions = this._getInitialRandomPosition();
-  const products = productsPositions.map((value, index) => new Product(index, images[index], value.x, value.y));
+  this.products = productsPositions.map((value, index) => new Product(index, images[index], value.x, value.y));
 
   this.products = products;
 };
 
+/**
+ * Функция, которая возвращает рандомные позиции товаров для новой волны.
+ * Новые позиции товаров рандомятся относительно позиций лент на игровом поле.
+ * @returns {*} массив позиций товаров волны.
+ */
 Wave.prototype._getInitialRandomPosition = function () {
   const { canvas } = this;
 
@@ -45,6 +65,11 @@ Wave.prototype._getInitialRandomPosition = function () {
   return positions;
 };
 
+/**
+ * Функция отрисовки волны.
+ * Вызывает поочерёдно функцию отрисовки для каждого товара волны.
+ * @returns {Wave} текущую волну.
+ */
 Wave.prototype.draw = function () {
   const { canvas, products } = this;
 
@@ -53,6 +78,11 @@ Wave.prototype.draw = function () {
   return this;
 };
 
+/**
+ * Функция перемещения волны на новые позиции.
+ * Каждый товар перемещается на 1 ячейку сверху вниз.
+ * @returns {Wave} текущую волну.
+ */
 Wave.prototype.move = function () {
   const { products } = this;
 
@@ -63,6 +93,10 @@ Wave.prototype.move = function () {
   return this;
 };
 
+/**
+ * Обновляет
+ * @param productId
+ */
 Wave.prototype.update = function (productId) {
   const { callbacks } = this;
 
@@ -80,6 +114,12 @@ Wave.prototype.update = function (productId) {
   }
 };
 
+/**
+ * Функция проверки позиций товаров относительно нижней границы игрового поля.
+ * Если товар полностью зашёл за нижнюю границу игрового поля, то его Id
+ * добавляется в массив товаров, которые готовы к удалению.
+ * @returns {*[]} массив id-ов готовых к удалению товаров волны.
+ */
 Wave.prototype._checkProducts = function () {
   const { products, canvas } = this;
 
@@ -94,6 +134,12 @@ Wave.prototype._checkProducts = function () {
   return deleteProductsIds;
 };
 
+/**
+ * Функция, которая задаёт новый список id-ов товаров волны.
+ * В результирующий список попадают те товары,
+ * id-ки которых не входят в переданный список ids.
+ * @param ids список фильтруемых id-ов.
+ */
 Wave.prototype._removeProducts = function (ids) {
   const { products } = this;
 
