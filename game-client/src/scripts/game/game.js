@@ -11,6 +11,13 @@ import texture from '../texture';
 
 import defaultSettings from "./game-settings";
 
+/**
+ * Функция создания и инициализации игры.
+ * Главная функции игры.
+ * @param customSettings настройки игры. Если не заданы, то используются дефолтные.
+ * @returns {Game|Game} текущую игру.
+ * @constructor
+ */
 function Game(customSettings) {
   if (!(this instanceof Game)) {
     return new Game(customSettings);
@@ -61,12 +68,18 @@ function Game(customSettings) {
   Game.instance = this;
 }
 
+/**
+ * Функция инициализации игры.
+ * См. комменты в теле функции.
+ * @private
+ */
 Game.prototype._initialize = function () {
   layout.showLoader();
 
   // Загружаем всё необходимое
   const assets = Object.values(texture.qr).map((qr) => helpers.loadImageSource(qr));
 
+  // После загрузки инициализируем элементы игры и отрисовываем их
   Promise.all(assets).then((images) => {
     const { canvas, callbacks } = this;
 
@@ -84,7 +97,7 @@ Game.prototype._initialize = function () {
 
       waves.push(new Wave(canvas, callbacks, images));
       wavesSpeeds.push(helpers.round(speed * level.faster * 100) / 100);
-    };
+    }
 
     this.waves = waves;
     this.currentWaveIndex = 0;
@@ -103,6 +116,11 @@ Game.prototype._initialize = function () {
   });
 };
 
+/**
+ * Функция получения информации о текущем уровне игры.
+ * @returns {{waves, faster, lives}} информация о текущем уровне игры (кол-во волн, ускорение, кол-во жизней).
+ * @private
+ */
 Game.prototype._level = function () {
   const { level } = this;
   const { level: lvl, lives, waves, faster } = constants;
@@ -134,10 +152,16 @@ Game.prototype._level = function () {
   };
 };
 
+/**
+ * Функция запуска игры.
+ */
 Game.prototype.start = function () {
   this._animate();
 };
 
+/**
+ * Функция остановки игры.
+ */
 Game.prototype.stop = function () {
   const { wavesIntervalTimers, wavesTimeoutTimers, score } = this;
 
@@ -147,6 +171,14 @@ Game.prototype.stop = function () {
   layout.showEnd(score);
 };
 
+/**
+ * Функция обновления статистики игры и элемент игры.
+ * Если входящий тип - LIVES, то выполняется уменьшение кол-во жизней на значение count из параметров.
+ * Если входящий тип - SCORE, то выполняется поиск товара по переданным в параметрах координатам
+ *  и, если товар будет найден, то кол-во очков игрока будет увеличено.
+ * @param type тип статов;
+ * @param params параметры для изменения статов.
+ */
 Game.prototype.updateStats = function (type, params) {
   const { currentWaveIndex, waves, score, lives } = this;
 
@@ -188,6 +220,13 @@ Game.prototype.updateStats = function (type, params) {
   }
 };
 
+/**
+ * Функция обновления состояния игры.
+ * Если товары в текущей волне кончились, то достаём следующую волну и отрисовываем их.
+ * Если волны кончились, то останавливаем игру.
+ * Если же товары в текущей волне не кончились, то обновляем её состояние..
+ * @private
+ */
 Game.prototype._update = function () {
   const { waves, wavesIntervalTimers, currentWaveIndex } = this;
   const wave = waves[currentWaveIndex];
@@ -210,6 +249,13 @@ Game.prototype._update = function () {
   }
 };
 
+/**
+ * Функция, которая заставляет двигаться волны в игре.
+ * Анимация волны реализована с помощью перерисовки положений товаров волны
+ * по таймеру, который срабатывает каждые N раз в секунду, где N задаётся в настройках.
+ * На каждый тик таймера двигаются товары волны и перерисовывается полностью всё игровое поле.
+ * @private
+ */
 Game.prototype._animate = function () {
   const {
     wavesTimeoutTimers,

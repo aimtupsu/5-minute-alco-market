@@ -33,6 +33,6 @@ koaWebpack({
   });
 
   server.listen(serverPort, () => {
-    console.info(`Server running at http://localhost:${serverPort}/`);
+    console.info('Server running at http://localhost:${serverPort}/');
   });
 });
